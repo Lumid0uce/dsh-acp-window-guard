@@ -1,0 +1,42 @@
+{
+  "name": "dsh-acp-window-guard",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Stop billion-context (ACP) from sizing unattributed/anonymous requests against a 200k default: raise modelContextLimit and re-apply the oversize safety patch after upgrades.",
+  "main": "./lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "billion-context",
+    "acp",
+    "context-window",
+    "prompt-too-long"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lumid0uce/dsh-acp-window-guard.git"
+  },
+  "scripts": {
+    "check": "node --check lib/index.js"
+  }
+}

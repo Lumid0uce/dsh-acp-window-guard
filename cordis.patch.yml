@@ -1,0 +1,8 @@
+# dsh-acp-window-guard — bundle patch
+# Mounts the host half: on DSH startup it checks/configures the ACP window limit
+# and re-applies the oversize safety patch if an upgrade reverted it.
+# Pure local fs, no network, no UI.
+- insert:
+    - id: acp-window-guard
+      name: 'dsh-acp-window-guard'
+      config: {}
