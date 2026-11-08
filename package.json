@@ -1,8 +1,8 @@
 {
   "name": "dsh-acp-window-guard",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
-  "description": "Stop billion-context (ACP) from sizing unattributed/anonymous requests against a 200k default: raise modelContextLimit and re-apply the oversize safety patch after upgrades.",
+  "description": "DeepSeek Harness + billion-context(ACP) 的窗口/通道护栏：抬 modelContextLimit、重打超窗保险补丁、并在 fetch 层把模型请求钉到 ACP /bili/ 通道，防止手机等旁路轮次裸发导致 prompt is too long。",
   "main": "./lib/index.js",
   "exports": {
     ".": "./lib/index.js",

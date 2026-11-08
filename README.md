@@ -125,3 +125,57 @@ PR 合入并升级 billion-context 之后，**这个插件就可以卸掉**：�
 ## License
 
 MIT
+## 0.2.0 新增：把"进不了 ACP"的请求钉回代理
+
+有些人（包括作者本机）遇到的报错不是"压缩不够"，而是**某些轮次的模型调用根本没经过 ACP**：
+`bili.log` 里那一轮一行记录都没有，请求带着原始 `baseURL` 直接打上游，
+历史 145 万 / 248 万 / 335 万 token 的 `prompt is too long` 都是这么出去的。
+实测触发场景：从手机端 App 发起的消息，偶发（同一会话有的轮次漏、有的不漏）。
+
+原因：ACP 是用「在宿主进程里 patch `globalThis.fetch`，把 URL 改写成
+`{ACP代理}/bili/{原始URL}`」的方式接管请求的。这条钩子没生效时，请求就绕过去了。
+
+本插件从 0.2.0 起在 `globalThis.fetch` 上再挂一层（`installFetchBridge`）：
+凡是模型端点（`/chat/completions`、`/completions`、`/responses`、`/messages`）
+且目标不是 ACP 的请求，一律改写成 `{ACP代理}/bili/{原始URL}`。
+ACP 钩子生效时它什么都不做（URL 已经在代理域下），失效时它兜底。
+
+验证过的通道性质（2026-11 实测）：
+
+```bash
+# 直连代理的非 /bili/ 路径 → 403
+curl -s -o /dev/null -w '%{http_code}\n' -X POST \
+  -H 'content-type: application/json' -d '{"model":"x","messages":[]}' \
+  http://127.0.0.1:18790/v1/chat/completions     # → 403 Request not allowed
+
+# /bili/ 重写通道 → 200，且照常压缩、照常计费统计
+curl -s -o /dev/null -w '%{http_code}\n' -X POST \
+  -H 'content-type: application/json' -d '{"model":"x","messages":[]}' \
+  'http://127.0.0.1:18790/bili/http://127.0.0.1:8888/v1/chat/completions'   # → 200
+```
+
+安装后 `~/.dsh/logs/` 无关；启动日志里会多一行：
+
+```
+[acp-window-guard] fetch bridge installed -> http://127.0.0.1:18790/bili/ (model requests cannot bypass ACP anymore)
+```
+
+### 配置层改写（默认关闭）
+
+`ensureProxyBaseUrl()` 也能直接把 `~/.dsh/settings.yaml` 里 provider 的 loopback `baseURL`
+改成 `/bili/` 通道。但 **DSH 桌面端退出/保存配置时会把 `settings.yaml` 写回去**，
+改了会被覆盖、还会反复生成备份，所以默认不开：
+
+```bash
+ACP_GUARD_BASEURL=1   # 想用再开
+```
+
+日常只需要运行时 fetch bridge 即可。
+
+### 关闭某一项
+
+```js
+// cordis.patch.yml 的 config 里
+{ id: acp-window-guard, name: 'dsh-acp-window-guard', config: { fetchBridge: false } }  // 关 fetch 兜底
+                                                                                        // rewriteBaseUrl 默认就是关的
+```
