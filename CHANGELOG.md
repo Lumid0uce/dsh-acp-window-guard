@@ -1,3 +1,13 @@
+## 0.2.2
+
+- 修 fetch bridge 的**启动时序**问题：护栏在宿主启动后约 2s 运行，而 ACP 代理往往晚 1~2s 才写出
+  `proxy-origin`，此前“此刻拿不到 origin”直接等于“整条桥不装”，日志只留一个含义不明的 `bridge:"ok"`，
+  要白等一次重启才会好。现在改为**无条件安装包装器 + 调用时懒解析 origin**（TTL 缓存，取不到就透传，
+  下一次请求自动重试）。
+- 日志字段写入具体原因：`installed:<origin>` / `installed:lazy` / `ok:<reason>` / `attention`，
+  不再把“已安装 / 无 origin / fetch 缺失 / 被关闭”四种情况压成同一个 `ok`。
+- 新增配置 `proxyOriginTtlMs`（默认 5000）控制 origin 缓存时间。
+- 清掉 `ensureBundlePatch` 里一段不可达的旧残留代码。
 # CHANGELOG
 
 ## 0.2.1

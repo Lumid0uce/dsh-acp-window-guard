@@ -1,6 +1,6 @@
 {
   "name": "dsh-acp-window-guard",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "type": "module",
   "description": "DeepSeek Harness + billion-context(ACP) 的窗口/通道护栏：抬 modelContextLimit、重打超窗保险补丁、并在 fetch 层把模型请求钉到 ACP /bili/ 通道，防止手机等旁路轮次裸发导致 prompt is too long。",
   "main": "./lib/index.js",
