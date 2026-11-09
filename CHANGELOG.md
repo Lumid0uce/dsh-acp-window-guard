@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.2.1
+
+- 兼容 billion-context **0.1.213**：上游把窗口判断函数从 `bodyProvablyOverWindow2` 改名为
+  `bodyOverWindowDetail2`（内部新增 `CALIBRATED_TEXT_TOKEN_RATIO` 校准），0.2.0 的字符串补丁在
+  0.1.213 上会 `pattern not found` 而静默失效。现在两套函数名都覆盖，且报告里会带命中的形状。
+- 幂等校验改成按「每个模式各自的 from/to 计数」判断，避免换版本后误判 `already patched`。
 ## 0.2.0 — 2026-11-08
 
 新增「请求进不了 ACP」这一类故障的护栏。
@@ -19,3 +25,10 @@
 ## 0.1.0 — 2026-11-08
 
 首个版本：抬 `modelContextLimit` 到 1,000,000；重打 `bodyProvablyOverWindow2(...)??MIN_ASSUMED_WINDOW_TOKENS` 两处补丁。
+
+## 0.2.1
+
+- 兼容 billion-context **0.1.213**：上游把窗口判断函数从 `bodyProvablyOverWindow2` 改名为
+  `bodyOverWindowDetail2`（内部新增 `CALIBRATED_TEXT_TOKEN_RATIO` 校准），0.2.0 的字符串补丁在
+  0.1.213 上会 `pattern not found` 而静默失效。现在两套函数名都覆盖，且报告里会带命中的形状。
+- 幂等校验改成按「每个模式各自的 from/to 计数」判断，避免换版本后误判 `already patched`。
