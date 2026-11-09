@@ -1,3 +1,15 @@
+## 0.3.0
+
+- **fetch 桥带上身份头**：漏网请求以前只被改写到 `/bili/`，不带 `x-bili-plugin*` 头，ACP 只能把它
+  当成**匿名链**（`pfa-*`）——窗口按配置默认值算、压缩状态与 KV 缓存全丢，日志里还会冒出
+  `new anonymous session pfa-… lineage=truncated of session-…`。
+  现在桥在改写时补上 `x-bili-plugin: dsh` / `x-bili-plugin-conversation: <sessionId>` /
+  `x-bili-plugin-model` / `x-bili-plugin-context-window` / `x-bili-plugin-max-output`，
+  让这条请求被归因回真实会话（`sess=session-…`），正常走压缩。
+- sessionId 来源：插件自己挂 `llm/stream` 钩子（`ctx.inject(['llm'])` + `AsyncLocalStorage`），
+  在调用栈内提供身份，桥在 fetch 层读取。
+- 日志新增 `hook: on|off` 字段，以及每 50 次改写的计数行（带 identity 命中情况），便于确认身份是否带上。
+- 新增配置 `identityContextWindow`（默认 1000000），即身份头里声明的上下文窗口。
 ## 0.2.2
 
 - 修 fetch bridge 的**启动时序**问题：护栏在宿主启动后约 2s 运行，而 ACP 代理往往晚 1~2s 才写出
